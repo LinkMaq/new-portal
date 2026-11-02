@@ -104,7 +104,7 @@ def item(anchor, question, answer, links):
         '<a href="%s"%s>%s</a>' % (href, ext(href), esc(label))
         for href, label in links)
     return (
-        '<li id="%s" class="tf-faqpage-item">'
+        '<li id="%s" class="tf-faqpage-item scroll-mt-[132px]">'
         '<h2 class="tf-faqpage-q">%s</h2>'
         '<p class="tf-faqpage-a">%s</p>'
         '<p class="tf-faqpage-more">%s</p>'
@@ -113,19 +113,23 @@ def item(anchor, question, answer, links):
 
 def main_markup():
     items = ''.join(item(*row) for row in FAQ)
+    # 栏宽、居中、页首内边距走全站 .tf-section-inner，不另写一套 760px 容器。
+    # 列表若再设 width 再把 margin 归零，会钉在视口左侧（2026-11-02）。
     return (
         '<div class="tf-faqpage">'
-        '<header class="tf-faqpage-hero tf-motion-section is-motion-visible" '
-        'style="--tf-motion-order: 0;">'
+        '<section class="tf-section scroll-mt-[132px] text-white '
+        'tf-motion-section is-motion-visible" style="--tf-motion-order: 0;">'
+        '<div class="tf-section-inner tf-section-frame">'
+        '<header class="tf-faqpage-hero">'
         '<nav class="tf-faqpage-crumb" aria-label="面包屑">'
         '<a href="/">首页</a><span aria-hidden="true">/</span><span>常见问题</span>'
         '</nav>'
         + overline('FAQ_') +
-        '<h1 class="tf-faqpage-title">产品定义，十条可以单独引用</h1>'
-        '<p class="tf-faqpage-lede">%s</p>'
+        '<h1 class="tf-section-title mt-5">产品定义，十条可以单独引用</h1>'
+        '<p class="tf-section-copy">%s</p>'
         '</header>'
         '<ol class="tf-faqpage-list">%s</ol>'
-        '</div>' % (esc(DESCRIPTION), items))
+        '</div></section></div>' % (esc(DESCRIPTION), items))
 
 
 def guards(ctx, doc):
@@ -136,7 +140,9 @@ def guards(ctx, doc):
         miss('应有且仅有一个 h1')
     if DESCRIPTION not in doc:
         miss('导语不在页面上')
-    ids = re.findall(r'<li id="([^"]+)" class="tf-faqpage-item">', doc)
+    if '<div class="tf-section-inner tf-section-frame">' not in doc.split('<main', 1)[-1]:
+        miss('FAQ 未放进全站 section 栏')
+    ids = re.findall(r'<li id="([^"]+)" class="tf-faqpage-item[^"]*">', doc)
     if ids != [row[0] for row in FAQ]:
         miss('锚点顺序不对: %s' % ids)
     for anchor, question, answer, links in FAQ:

@@ -1,18 +1,12 @@
-/* /faq/ — 产品定义问答。答案默认展开，方便阅读和引用，不走首页那套折叠。 */
+/* /faq/ 的栏宽、居中和页首留白用全站 .tf-section / .tf-section-inner。
+   这里只补问答本身。不要再给列表写 width，再把 margin 归零：
+   那会得到一条 760px 的列表，贴在视口左侧，右侧整片空白。 */
 
 .tf-faqpage { color: #fff; }
 
-.tf-faqpage-hero,
-.tf-faqpage-list {
-  width: min(760px, calc(100% - 3rem));
-  margin-left: auto;
-  margin-right: auto;
-}
+.tf-faqpage h1.tf-section-title { margin-bottom: 0; }
 
-.tf-faqpage-hero {
-  padding-top: clamp(2.4rem, 4.6vw, 4rem);
-  padding-bottom: clamp(1.2rem, 2vw, 2rem);
-}
+.tf-faqpage-hero { margin-bottom: clamp(1.6rem, 3vw, 2.6rem); }
 
 .tf-faqpage-crumb {
   display: flex;
@@ -28,30 +22,15 @@
 .tf-faqpage-crumb a { color: inherit; text-decoration: none; }
 .tf-faqpage-crumb a:hover { color: #fff; }
 
-.tf-faqpage-title {
-  margin: .8rem 0 0;
-  font-size: clamp(2rem, 4vw, 3.1rem);
-  font-weight: 600;
-  letter-spacing: -.03em;
-  line-height: 1.12;
-}
-
-.tf-faqpage-lede {
-  margin: 1.1rem 0 0;
-  max-width: 40rem;
-  color: rgba(255, 255, 255, .68);
-  font-size: 1rem;
-  line-height: 1.75;
-}
-
 .tf-faqpage-list {
   list-style: none;
   margin: 0;
-  padding: 0 0 clamp(3rem, 6vw, 5rem);
+  padding: 0;
 }
 
 .tf-faqpage-item {
-  scroll-margin-top: 7.5rem;
+  /* 132px 工具类清得过顶栏；这里再留一截，锚点进来时标题不被新闻条裁掉。 */
+  scroll-margin-top: 9rem;
   padding: 1.35rem 0 1.45rem;
   border-top: 1px solid rgba(255, 255, 255, .1);
 }
@@ -59,7 +38,7 @@
 
 .tf-faqpage-q {
   margin: 0;
-  font-size: 1.15rem;
+  font-size: clamp(1.15rem, 2vw, 1.35rem);
   font-weight: 600;
   letter-spacing: -.015em;
   line-height: 1.45;
@@ -75,14 +54,14 @@
 .tf-faqpage-more {
   display: flex;
   flex-wrap: wrap;
-  gap: .5rem 1rem;
+  gap: .55rem 1.1rem;
   margin: .85rem 0 0;
   font-family: var(--font-mono);
-  font-size: .68rem;
-  letter-spacing: .08em;
+  font-size: .72rem;
+  letter-spacing: .06em;
 }
 .tf-faqpage-more a {
-  color: rgba(159, 233, 255, .9);
+  color: rgba(159, 233, 255, .92);
   text-decoration: none;
   border-bottom: 1px solid rgba(159, 233, 255, .35);
 }
