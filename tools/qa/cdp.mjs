@@ -13,7 +13,7 @@
 // 端口按脚本分配（不冲突即可），profile 名会展开成 /tmp/cdp-profile-<name>。
 import { spawn } from 'node:child_process';
 
-export const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+export const CHROME = process.env.CHROME_BIN || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 /**

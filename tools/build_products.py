@@ -108,6 +108,21 @@ CONTACT_PAGE = '/contact'
 # 所以 DOCS_URL 也在名单里。
 ACTION_HREFS = (CONTACT_PAGE, DOCS_URL)
 
+# 产品页页首多一条「场景 / 定义」入口，把买方长尾页和 FAQ 接回来。
+# 守卫里另有一份字面量（SCENE_EXPECT），两处必须一致；只改这里会红。
+SCENE = {
+    'rune': ('/solutions/gov-ai-training-inference/', '政务与行业训推'),
+    'moha': ('/faq/#faq-moha', 'Moha 的产品定义'),
+    'ai-router': ('/solutions/enterprise-ai-gateway/', '企业级 AI 网关'),
+    'boss': ('/solutions/compute-center-ops/', '智算中心运营'),
+}
+SCENE_EXPECT = {
+    'rune': '/solutions/gov-ai-training-inference/',
+    'moha': '/faq/#faq-moha',
+    'ai-router': '/solutions/enterprise-ai-gateway/',
+    'boss': '/solutions/compute-center-ops/',
+}
+
 
 # ============================================================ 内容
 PRODUCTS = [
@@ -244,6 +259,9 @@ def divider_for(slug):
 def hero(p):
     v = p['preview']
     actions = ''.join(brand_action(label, href, kind) for label, href, kind in p['actions'])
+    scene_href, scene_label = SCENE[p['slug']]
+    scene = ('<p class="tf-product-hero-scene"><a href="%s">%s</a></p>'
+             % (scene_href, esc(scene_label)))
     meta = ''.join('<span>%s</span>%s' % (esc(x), '<i></i>' if i < len(p['meta']) - 1 else '')
                    for i, x in enumerate(p['meta']))
     rows = ''.join('<div><dt>%s</dt><dd>%s</dd></div>' % (esc(k), esc(val))
@@ -280,11 +298,12 @@ def hero(p):
         '<div class="tf-product-hero-copy">%s'
         '<h1 class="tf-product-hero-title">%s</h1>'
         '<p class="tf-product-hero-lede">%s</p>'
+        '%s'
         '<div class="tf-product-hero-actions">%s</div>'
         '<p class="tf-product-hero-meta">%s</p>'
         '</div>%s</div></section>'
         % (overline(p['overline']), esc(p['title']),
-           esc(p['lede']), actions, meta, preview))
+           esc(p['lede']), scene, actions, meta, preview))
 
 
 
@@ -445,6 +464,11 @@ def guards(ctx, p, doc, main_html):
                  % (href, ' / '.join(ACTION_HREFS)))
     if CONTACT_PAGE not in btns:
         miss('页首按钮组里没有一条指向 %s' % CONTACT_PAGE)
+    scene_expect = SCENE_EXPECT[slug]
+    if 'href="%s"' % scene_expect not in main_html:
+        miss('页首缺少场景入口 %s' % scene_expect)
+    if SCENE[slug][0] != scene_expect:
+        miss('SCENE 与 SCENE_EXPECT 不一致: %s' % slug)
     if 'mailto:' in main_html:
         miss('产品页正文不该再有 mailto（商务出口统一到 /contact），实得 %d 处'
              % main_html.count('mailto:'))

@@ -325,6 +325,31 @@ def breadcrumb(trail):
     return {'@type': 'BreadcrumbList', 'itemListElement': items}
 
 
+def faq_page(pairs, url):
+    """FAQPage 实体。`pairs` 是 [(question, answer, anchor), …]。
+
+    question / answer 必须与挂载页上的可见文案逐字相同——调用方从同一份数据
+    渲染正文和这里，`qa/seo.py` 再拿产物两边对账。anchor 写成该页 URL 上的
+    片段（`…/faq/#faq-rune`），方便被单独引用。
+    """
+    if not url.endswith('/'):
+        url = url + '/'
+    main = []
+    for name, text, anchor in pairs:
+        main.append({
+            '@type': 'Question',
+            '@id': url + '#' + anchor,
+            'name': name,
+            'acceptedAnswer': {'@type': 'Answer', 'text': text},
+        })
+    return {
+        '@type': 'FAQPage',
+        '@id': url + '#faqpage',
+        'url': url,
+        'mainEntity': main,
+    }
+
+
 # --------------------------------------------------------------- SEO 块本体
 def seo_block(title, description, url, *, kind='webpage', image=None, image_alt=None,
               image_size=(OG_IMAGE_W, OG_IMAGE_H), og_title=None, published=None,

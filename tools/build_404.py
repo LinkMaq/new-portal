@@ -62,6 +62,11 @@ SUGGEST = [
     ('/products/moha/', 'Moha 资产', 'Product'),
     ('/products/ai-router/', 'AIRouter AI 聚合网关', 'Product'),
     ('/products/boss/', 'BOSS 运营', 'Product'),
+    ('/solutions/', '解决方案', 'Scenario'),
+    ('/solutions/compute-center-ops/', '智算中心运营', 'Scenario'),
+    ('/solutions/enterprise-ai-gateway/', '企业级 AI 网关', 'Scenario'),
+    ('/solutions/gov-ai-training-inference/', '政务与行业训推', 'Scenario'),
+    ('/faq/', '常见问题', 'FAQ'),
     ('/about', '关于我们', 'Company'),
     ('/blog', '公司动态', 'Blog'),
     ('/contact', '联系我们', 'Contact'),
@@ -174,8 +179,8 @@ def main():
 
     # ------------------------------------------------------- 本页专属守卫
     # 入口清单条数：漏加一格是「页面上少一个入口」，不会报错，所以按绝对数咬。
-    if len(SUGGEST) != 8:
-        ctx.miss.append('SUGGEST: %d entries, expected 8' % len(SUGGEST))
+    if len(SUGGEST) != 13:
+        ctx.miss.append('SUGGEST: %d entries, expected 13' % len(SUGGEST))
     got = doc.count('class="tf-404-link"')
     if got != len(SUGGEST):
         ctx.miss.append('tf-404-link: got %d, want %d' % (got, len(SUGGEST)))
