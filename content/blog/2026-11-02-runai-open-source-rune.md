@@ -2,7 +2,7 @@
 title: NVIDIA 开源了 Run:ai，机房同事还在对门户和账
 slug: 2026-11-02-runai-open-source-rune
 date: 2026-11-02
-cover: assets/img/news/20261102.webp
+cover: assets/img/news/20261102-twin.webp
 tag: 产品观察
 summary: 近日 NVIDIA 将 Run:ai 以 Apache 2.0 开源。调度层能改了，智算中心现场仍常卡在门户、配额出账和模型统一入口。破晓石产品线 Rune AI 补的是训推门户、资产仓、网关与运营这条链，与 Run:ai 互补多于对标。
 ---
