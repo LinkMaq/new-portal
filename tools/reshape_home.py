@@ -329,8 +329,12 @@ def seo_guard():
             MISS.append('seo: home JSON-LD does not parse: %s' % exc)
         else:
             types = [e.get('@type') for e in data.get('@graph', [])]
-            if types != ['Organization', 'WebSite']:
-                MISS.append('seo: home @graph is %s, want [Organization, WebSite]' % types)
+            if types != ['Organization', 'WebSite', 'FAQPage']:
+                MISS.append('seo: home @graph is %s, want [Organization, WebSite, FAQPage]'
+                            % types)
+            faq_nodes = [e for e in data.get('@graph', []) if e.get('@type') == 'FAQPage']
+            if len(faq_nodes) != 1 or len(faq_nodes[0].get('mainEntity') or []) != 9:
+                MISS.append('seo: home FAQPage should carry 9 questions')
             ids = [e.get('@id') for e in data.get('@graph', [])]
             if seo.ORG_ID not in ids or seo.SITE_ID not in ids:
                 MISS.append('seo: Organization / WebSite @id changed — 其余 13 页'
@@ -794,9 +798,9 @@ CONSOLE_HREF = 'https://console.poxiaoshi.cn'
 # 全部改指站内。旧站的 solutions / cases / chatbox / xmcp 四类**在新站没有对应页**，
 # 所以落点按语义就近，不按路径对齐 —— 新站只需要一个「别再把人送走」的结果：
 #
-#   混合云 / 智算中心 / XCMP 云管理 → /products/rune/   云智算内核与它的多云底座都在这一页
-#   教育行业 / 能源制造             → /blog/            站内交付故事（马基努油田那篇就是能源）
-#   AI 应用                         → /products/ai-router/  AI 应用统一经聚合网关接入
+#   解决方案列四条（2026-11）       → 三张 /solutions/ 场景页 + /faq/
+#   能源制造                        → /blog/            站内交付故事（马基努油田那篇就是能源）
+#   XCMP 云管理（产品列）           → /products/rune/   多云底座落在 Rune 产品页
 #   关于我们                        → /about             站内有这一页，原先却指旧站
 #
 # 定价区那几条（查看完整报价 / 查看商务条款）与两处「预约演示」→ /contact：站内没有
@@ -805,12 +809,15 @@ CONTACT_PAGE = '/contact'
 PRICING_ANCHOR = '/#pricing'          # 首页定价区自带 id="pricing"（上游就有）
 FOOTER_RETARGET = (
     # (说明, node-id, 旧 href, 新 href)
-    ('混合云', 'KvS53dW9vEx7LJrNEYJagV', 'https://www.poxiaoshi.cn/solutions', '/products/rune/'),
-    ('智算中心', 'UlASgYyW9LUmjefpD40YaY', 'https://www.poxiaoshi.cn/solutions', '/products/rune/'),
-    ('教育行业', 'kaDnRWG8B81dbK9QH30BPT', 'https://www.poxiaoshi.cn/cases', '/blog/'),
+    ('智算中心运营', 'KvS53dW9vEx7LJrNEYJagV', 'https://www.poxiaoshi.cn/solutions',
+     '/solutions/compute-center-ops/'),
+    ('企业 AI 网关', 'UlASgYyW9LUmjefpD40YaY', 'https://www.poxiaoshi.cn/solutions',
+     '/solutions/enterprise-ai-gateway/'),
+    ('政务训推', 'kaDnRWG8B81dbK9QH30BPT', 'https://www.poxiaoshi.cn/cases',
+     '/solutions/gov-ai-training-inference/'),
     ('能源制造', '3nLfikIfe3k1Wz3SKL7X7q', 'https://www.poxiaoshi.cn/cases', '/blog/'),
-    ('AI 应用', 'beRStKhjjBgU5lWd2yGLEF', 'https://www.poxiaoshi.cn/products/chatbox/',
-     '/products/ai-router/'),
+    ('常见问题', 'beRStKhjjBgU5lWd2yGLEF', 'https://www.poxiaoshi.cn/products/chatbox/',
+     '/faq/'),
     ('关于我们', 'WQs06tBb1wDxj7OvovKSYT', 'https://www.poxiaoshi.cn/about/', '/about'),
 )
 PRICING_RETARGET = (
@@ -1036,15 +1043,15 @@ def drop_nav_item(node_id, old_href, label):
 
 # ================================================ 顶层菜单「解决方案」（2026-09-11）
 # 「解决方案」是桌面 nav 的**顶层项**（.tf-nav-menu-link），不是下拉项 —— 桌面与
-# 移动抽屉各一份，两处原本都指向旧站的 https://www.poxiaoshi.cn/products/（新站
-# 没有这个路径）。2026-09-11 用户要求改为跳转到演示站的第一页。
+# 移动抽屉各一份，两处原本都指向旧站的 https://www.poxiaoshi.cn/products/。
+# 2026-09-11 曾改到演示站；2026-11 站内 /solutions/ 建好后改回站内索引。
 #
 # 裸 products/ 在 nav 里**只有这 2 处**：产品下拉里的是 products/rune/ 这类带子
-# 路径的链接（另有 9 处），改这个 href 不会碰到它们 —— 守卫按精确形态咬住这点。
+# 路径的链接，改这个 href 不会碰到它们 —— 守卫按精确形态咬住这点。
 NAV_MENU_RETARGET = (
     # (名称, 桌面 node-id, 移动抽屉 node-id, 旧 href, 新 href)
     ('解决方案', 'YR7a557saso22RZ5nfXC1O', 'Woje1sxC8xj3MiPZ2Cg9sr',
-     'https://www.poxiaoshi.cn/products/', 'https://ppt.poxiaoshi.cn/#slide-1'),
+     'https://www.poxiaoshi.cn/products/', '/solutions/'),
     # 「价格与服务」原本指旧站首页（那里是旧站的报价页）。站内定价区就在首页，
     # 且上游已经带着 `id="pricing"` —— 直接锚过去，别再外跳一层。
     # 两个 node-id 是顶层菜单项，`ext()` 对根相对路径返回空串，所以不会带 target。
@@ -1615,6 +1622,102 @@ def stage_faq():
             body = body[:wrap] + rebuilt + body[w_end:]
             applied['faq items rebuilt'] = 1
 
+    # 首页 9 问保持原口径；更完整的定义句在 /faq/。链接放在导语后面，不改答案正文，
+    # 这样 FAQPage 可以按可见答案原样生成。
+    need1('<p data-page-node-id="0L1It8fBaTILqkt9mtXmZi">关于晓石云产品与交付的常见解答。</p>',
+          '<p data-page-node-id="0L1It8fBaTILqkt9mtXmZi">关于晓石云产品与交付的常见解答。</p>'
+          '<a class="tf-faq-more" href="/faq/">产品定义问答</a>',
+          'faq more link')
+
+
+# 首页 FAQ 每条的锚点。编号是可见序号，slug 是可引用片段。
+# 条数写死：从页面上数 article 再当期望，少一条时守卫会跟着变绿。
+HOME_FAQ_ANCHORS = (
+    ('01', 'faq-matrix'),
+    ('02', 'faq-difference'),
+    ('03', 'faq-integration'),
+    ('04', 'faq-gpu'),
+    ('05', 'faq-private'),
+    ('06', 'faq-moha-records'),
+    ('07', 'faq-trial'),
+    ('08', 'faq-boss'),
+    ('09', 'faq-harness'),
+)
+
+
+def stage_faq_schema():
+    """给首页每条 FAQ 加锚点，并把可见问答写进 FAQPage。
+
+    问答从已经定稿的 <article> 读出来再写进 JSON-LD，schema 不另写一套文案。
+    """
+    global body
+    by_num = dict(HOME_FAQ_ANCHORS)
+    pairs = []
+
+    def repl(m):
+        art = m.group(0)
+        qm = re.search(r'<span[^>]*>(\d{2})</span>\s*<b[^>]*>(.*?)</b>', art)
+        am = re.search(
+            r'<div class="tf-faq-answer-row"[^>]*>\s*<div[^>]*>\s*<p[^>]*>(.*?)</p>', art)
+        if not qm or not am:
+            MISS.append('faq article missing question or answer')
+            return art
+        num, question, answer = qm.group(1), qm.group(2), am.group(1)
+        anchor = by_num.get(num)
+        if not anchor:
+            MISS.append('faq number has no anchor: ' + num)
+            return art
+        # 只认 article 开标签上的 id。`data-page-node-id` 里的 `id` 不是锚点。
+        open_tag = art[:art.find('>')]
+        if re.search(r'\sid="', open_tag):
+            MISS.append('faq article already has an id: ' + num)
+            return art
+        art = re.sub(r'<article\b', '<article id="%s"' % anchor, art, count=1)
+        pairs.append((question, answer, anchor))
+        return art
+
+    body2, n = re.subn(r'<article\b[^>]*>.*?</article>', repl, body, flags=re.S)
+    body = body2
+    if n != len(HOME_FAQ_ANCHORS):
+        MISS.append('faq articles: got %d, want %d' % (n, len(HOME_FAQ_ANCHORS)))
+    if [p[2] for p in pairs] != [a for _n, a in HOME_FAQ_ANCHORS]:
+        MISS.append('faq anchor order drifted: %s' % [p[2] for p in pairs])
+        return
+
+    block_m = seo.SEO_BLOCK_RE.search(body)
+    if not block_m:
+        MISS.append('faq schema: SEO block missing')
+        return
+    block = block_m.group(0)
+    sm = re.search(r'<script type="application/ld\+json">(.*?)</script>', block, re.S)
+    if not sm:
+        MISS.append('faq schema: JSON-LD script missing')
+        return
+    try:
+        data = json.loads(sm.group(1))
+    except ValueError as exc:
+        MISS.append('faq schema: JSON-LD does not parse: %s' % exc)
+        return
+    graph = data.get('@graph')
+    if not isinstance(graph, list):
+        MISS.append('faq schema: JSON-LD has no @graph')
+        return
+    if any(e.get('@type') == 'FAQPage' for e in graph):
+        MISS.append('faq schema: FAQPage already present before injection')
+        return
+    graph.append(seo.faq_page(pairs, seo.page_url('index.html')))
+    new_script = '<script type="application/ld+json">%s</script>' % seo.jsonld_dump(data)
+    new_block = block[:sm.start()] + new_script + block[sm.end():]
+    body = body[:block_m.start()] + new_block + body[block_m.end():]
+    applied['faq anchors + FAQPage'] = len(pairs)
+
+    visible = seo.SEO_BLOCK_RE.sub('', body)
+    for question, answer, anchor in pairs:
+        if 'id="%s"' % anchor not in visible:
+            MISS.append('faq anchor missing in the page: ' + anchor)
+        if question not in visible or answer not in visible:
+            MISS.append('faq schema text not visible: ' + question)
+
 
 def stage_footer_cta():
     global body
@@ -1686,6 +1789,16 @@ def stage_footer_cta():
     for label, nid, old_href, new_href in FOOTER_RETARGET:
         if retarget_link(nid, old_href, new_href, '页脚·' + label):
             applied['页脚·%s -> %s' % (label, new_href)] = 1
+
+    # 解决方案列的可见文字与落点一起换。必须在乱码宿主包上去之前改纯文本。
+    for nid, old_label, new_label in (
+            ('KvS53dW9vEx7LJrNEYJagV', '混合云', '智算中心运营'),
+            ('UlASgYyW9LUmjefpD40YaY', '智算中心', '企业 AI 网关'),
+            ('kaDnRWG8B81dbK9QH30BPT', '教育行业', '政务训推'),
+            ('beRStKhjjBgU5lWd2yGLEF', 'AI 应用', '常见问题')):
+        need1('data-page-node-id="%s">%s</a>' % (nid, old_label),
+              'data-page-node-id="%s">%s</a>' % (nid, new_label),
+              '页脚文案·' + new_label)
 
     # 页尾 CTA（同样写着「预约演示」）：与品牌带那处置同样改法。
     retarget_link('pZ011MTZ4ISN6rqe9QHCZt', CONSOLE_HREF, CONTACT_PAGE,
@@ -2125,12 +2238,23 @@ def stage_guards():
     if mails != [CONTACT_MAIL]:
         MISS.append('站芯 mailto 应只剩页脚邮箱图标 1 条，实得 %d 条: %s'
                     % (len(mails), sorted(set(mails))))
-    # 顶层菜单「解决方案」2026-09-11 改指演示站（见 stage_nav_menu）：桌面与抽屉
-    # 各一份，两处都必须开新窗（ext() 对 http 开头自动加，不必在这里写死 target）。
-    # 只改看得见的那一份是本轮之前踩过的坑，所以按计数咬住。
-    got = body.count('href="https://ppt.poxiaoshi.cn/#slide-1"')
+    # 顶层菜单「解决方案」指站内索引：桌面与抽屉各一份，都不开新窗。
+    got = body.count('href="/solutions/"')
     if got != 2:
-        MISS.append('「解决方案」应有两处指向演示站（桌面 + 抽屉），实得 %d' % got)
+        MISS.append('「解决方案」应有两处指向 /solutions/（桌面 + 抽屉），实得 %d' % got)
+    if 'ppt.poxiaoshi.cn' in body:
+        MISS.append('顶层「解决方案」不应再指向路演站')
+    for path in ('/solutions/compute-center-ops/',
+                 '/solutions/enterprise-ai-gateway/',
+                 '/solutions/gov-ai-training-inference/',
+                 '/faq/'):
+        if 'href="%s"' % path not in body:
+            MISS.append('首页缺少场景或 FAQ 入口: ' + path)
+    for anchor in ('faq-matrix', 'faq-difference', 'faq-integration', 'faq-gpu',
+                   'faq-private', 'faq-moha-records', 'faq-trial', 'faq-boss',
+                   'faq-harness'):
+        if 'id="%s"' % anchor not in body:
+            MISS.append('首页 FAQ 缺少锚点 #' + anchor)
 
     # ------------------------------------------- 产品目录改指站内产品页（2026-09-11）
     # 六处目录型入口 —— 产品下拉、预约演示下拉、移动抽屉、控制平面 lane、页脚产品列、
@@ -2151,9 +2275,9 @@ def stage_guards():
             got = sum(1 for m in re.finditer(r'<a\b[^>]*>', body)
                       if href in m.group(0)
                       and (frag in m.group(0) if frag else 'class=' not in m.group(0)))
-            # 页脚还挂着「混合云 / 智算中心 / XCMP 云管理」三条指向 Rune 的别名，
-            # 它们与产品列同名同类，无法在这里分开数 —— 所以页脚只要「至少一条」，
-            # 少了会变 0。这三条本身由下面的「旧站零出现」兜住。
+            # 页脚产品列里「XCMP 云管理」也指向 Rune，和产品列同名同类，无法在这里
+            # 分开数 —— 所以页脚只要「至少一条」，少了会变 0。解决方案列已经改去
+            # /solutions/，不再算进这条。
             room = got >= 1 if source == '页脚产品列' else got == 1
             if not room:
                 MISS.append('%s：%s 应有 1 条指向 %s，实得 %d'
@@ -2209,8 +2333,8 @@ def stage_guards():
     # 而这条想守的是页脚那两条行业案例。不摘的话，用户往公告条里加一条
     # `| /blog/` 就会得到「页脚两条行业案例应指 /blog/，实得 3」这种指错方向的报错。
     got = body_without_announcement().count('href="/blog/"')
-    if got != 2:
-        MISS.append('页脚两条行业案例应指 /blog/，实得 %d' % got)
+    if got != 1:
+        MISS.append('页脚「能源制造」应是唯一指向 /blog/ 的链接，实得 %d' % got)
     # 首页三处控制台直达已全部收归站内（品牌带 / 页尾 → /contact，BOSS 深潜 → 产品页）。
     # 去控制台的路改由产品页承接：首页 → 产品页 → 页尾「进入控制台」。
     got = body.count(CONSOLE_HREF)
@@ -2352,7 +2476,7 @@ for fn in (stage_head, stage_icons, stage_seo,
            stage_nav, stage_nav_menu, stage_nav_company, stage_hero,
            stage_story, stage_xcmp,
            stage_rune_moha, stage_moha, stage_airouter, stage_boss, stage_harness,
-           stage_pricing, stage_faq, stage_blog_cards, stage_announcement,
+           stage_pricing, stage_faq, stage_faq_schema, stage_blog_cards, stage_announcement,
            stage_footer_cta,
            stage_contact_retarget,
            # 必须排在 stage_footer_cta 与 stage_contact_retarget 之后：前者把

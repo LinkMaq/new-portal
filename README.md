@@ -2,7 +2,7 @@
 
 [www.poxiaoshi.cn](https://www.poxiaoshi.cn/) 的源码。
 
-静态站，没有前端框架、没有打包器、没有任何 npm 依赖：**17 个产物（14 个 `index.html`
+静态站，没有前端框架、没有打包器、没有任何 npm 依赖：**22 个产物（19 个 `index.html`
 + `404.html` + `robots.txt` + `sitemap.xml`）全部由 `tools/` 下的 Python 生成器派生，
 产物直接入库**，CI 每次 push 到 `main` 重跑一遍生成器再发布到 GitHub Pages。
 
@@ -16,6 +16,11 @@
 | `/blog/<slug>/` | 2 | 同上 | 6 篇文章详情 |
 | `/contact/` | 1 | `tools/build_contact.py` | 联系我们（web3forms 表单 + 腾讯地图） |
 | `/products/{rune,moha,ai-router,boss}/` | 2 | `tools/build_products.py` | 四个产品子页 |
+| `/faq/` | 1 | `tools/build_faq.py` | 十条产品定义 + FAQPage |
+| `/solutions/` | 1 | `tools/build_solutions.py` | 场景索引 |
+| `/solutions/compute-center-ops/` | 2 | 同上 | 智算中心运营 → BOSS |
+| `/solutions/enterprise-ai-gateway/` | 2 | 同上 | 企业级 AI 网关 → AIRouter |
+| `/solutions/gov-ai-training-inference/` | 2 | 同上 | 政务与行业训推 → Rune |
 | `/404.html` | 0 | `tools/build_404.py` | 兜底页 + 旧地址兼容层 |
 
 「深度」= 产物相对站点根的层数，决定站内资源前缀（`assets/` 还是 `../assets/`）。
@@ -25,7 +30,7 @@
 
 ```
 index.html            首页产物（由 tools/ref 的 pristine 快照 + reshape_home.py 派生）
-404.html about/ blog/ contact/ products/        其余 14 个产物
+404.html about/ blog/ contact/ products/ faq/ solutions/   其余内容页
 robots.txt sitemap.xml                          SEO 产物（tools/build_seo.py）
 assets/css/*.css      vendor.css（换牌时搬来的编译产物，含整套设计令牌与组件族）
                       custom.css 及各页样式表（自己写的部分）
@@ -48,14 +53,14 @@ python3 tools/build_all.py          # 全量重建 + 静态体检（顺序是硬
 python3 tools/build_all.py --check  # 只跑静态体检，不重建
 ```
 
-流水线顺序不能调：`reshape_home.py` 先产出首页，中间五个生成器都从**已定稿的
+流水线顺序不能调：`reshape_home.py` 先产出首页，中间的生成器都从**已定稿的
 首页**里整篇取站芯（head / nav / 移动抽屉 / footer），并且会在写盘前断言首页一个
 字节都没被改动。顺序错了会得到站芯漂移的页面，而且是静默的。最后的
 `build_seo.py` 要清点**全部**页面来产出 `robots.txt` / `sitemap.xml`，早于任何
 页面生成器就会漏页。
 
-一共 7 个生成器 + 3 项静态体检（`qa/links.py` / `qa/classes.py` / `qa/seo.py`），
-全绿时最后一行是 `pipeline ok: 7 generators + 3 static checks`。
+一共 9 个生成器 + 3 项静态体检（`qa/links.py` / `qa/classes.py` / `qa/seo.py`），
+全绿时最后一行是 `pipeline ok: 9 generators + 3 static checks`。
 
 构建期从环境变量读入的值。**未配置一律只降级、不失败**（CI 里对每个缺失项打一条
 `::warning::`，否则「站点照常发布、只是搜索引擎那边悄悄少了一半能力」这种失败在
@@ -119,7 +124,7 @@ node tools/qa/page.mjs    http://127.0.0.1:8899/index.html --shots tmp/shots
 
 ### 它不是「往快照里换文案」，是整条轨道重建
 
-公告条属于**站芯**：在首页产出，14 个内容页由 `portal_page.derive()` 整篇搬走。所以
+公告条属于**站芯**：在首页产出，19 个内容页由 `portal_page.derive()` 整篇搬走。所以
 它里面不能有任何逐页差异 —— 一旦有，`chrome_fingerprint()` 会报「站芯漂移」，而那个
 报错看起来像是 derive 的锅。
 
@@ -154,7 +159,7 @@ node tools/qa/page.mjs    http://127.0.0.1:8899/index.html --shots tmp/shots
 
 | 产物 | 谁产出 | 在 `build_all.py` 里？ |
 | --- | --- | --- |
-| 各页 head 里的 SEO 块 | `tools/seo.py`，由 `reshape_home.py` 与 `portal_page.derive()` 调用 | 是 |
+| 各页 head 里的 SEO 块（含首页与 `/faq/` 的 FAQPage） | `tools/seo.py`，由 `reshape_home.py` 与 `portal_page.derive()` 调用 | 是 |
 | `robots.txt` / `sitemap.xml` | `tools/build_seo.py` | 是 |
 | `assets/img/og*.png` 等 13 张图 | `tools/gen_og.py` | **否**，见下 |
 

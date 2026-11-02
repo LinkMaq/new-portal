@@ -38,6 +38,9 @@
     <loc>https://www.poxiaoshi.cn/contact/</loc>
   </url>
   <url>
+    <loc>https://www.poxiaoshi.cn/faq/</loc>
+  </url>
+  <url>
     <loc>https://www.poxiaoshi.cn/products/ai-router/</loc>
   </url>
   <url>
@@ -48,5 +51,17 @@
   </url>
   <url>
     <loc>https://www.poxiaoshi.cn/products/rune/</loc>
+  </url>
+  <url>
+    <loc>https://www.poxiaoshi.cn/solutions/</loc>
+  </url>
+  <url>
+    <loc>https://www.poxiaoshi.cn/solutions/compute-center-ops/</loc>
+  </url>
+  <url>
+    <loc>https://www.poxiaoshi.cn/solutions/enterprise-ai-gateway/</loc>
+  </url>
+  <url>
+    <loc>https://www.poxiaoshi.cn/solutions/gov-ai-training-inference/</loc>
   </url>
 </urlset>

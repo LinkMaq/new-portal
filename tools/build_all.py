@@ -7,6 +7,8 @@
       ├─ blog/…             <- build_blog.py
       ├─ contact/index.html <- build_contact.py
       ├─ products/*/index.html <- build_products.py
+      ├─ faq/index.html     <- build_faq.py
+      ├─ solutions/…        <- build_solutions.py
       ├─ 404.html           <- build_404.py    （全站兜底页 + 旧前缀兼容层）
       └─ robots.txt / sitemap.xml <- build_seo.py（清点上面全部页面）
 
@@ -41,9 +43,10 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 
-# 顺序即依赖：第一个产站芯，中间五个消费它，最后一个清点全部页面。
+# 顺序即依赖：第一个产站芯，中间几个消费它，最后一个清点全部页面。
 PIPELINE = ['reshape_home.py', 'build_about.py', 'build_blog.py', 'build_contact.py',
-            'build_products.py', 'build_404.py', 'build_seo.py']
+            'build_products.py', 'build_faq.py', 'build_solutions.py', 'build_404.py',
+            'build_seo.py']
 
 # 静态体检：不用浏览器、不用起服务，直接在产物上跑。都必须在生成之后执行。
 CHECKS = [
