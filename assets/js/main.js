@@ -204,18 +204,33 @@
   }, 0);
 
   /* ------------------------------------------------------------- FAQ */
-  $$('.tf-faq-list article').forEach(function (art) {
+  function setFaqOpen(art, open) {
     var btn = $('.tf-faq-question-row', art);
     var row = $('.tf-faq-answer-row', art);
     var icon = $('.tf-faq-action-icon img', art);
     if (!btn || !row) return;
+    art.classList.toggle('is-open', open);
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    row.setAttribute('aria-hidden', open ? 'false' : 'true');
+    if (icon) icon.classList.toggle('is-open', open);
+  }
+  $$('.tf-faq-list article').forEach(function (art) {
+    var btn = $('.tf-faq-question-row', art);
+    if (!btn) return;
     btn.addEventListener('click', function () {
-      var open = art.classList.toggle('is-open');
-      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-      row.setAttribute('aria-hidden', open ? 'false' : 'true');
-      if (icon) icon.classList.toggle('is-open', open);
+      setFaqOpen(art, !art.classList.contains('is-open'));
     });
   });
+  // 带锚点进来时把那一条展开，否则只滚到折叠着的问题。
+  function openFaqFromHash() {
+    var id = (location.hash || '').replace(/^#/, '');
+    if (!id) return;
+    var art = document.getElementById(id);
+    if (!art || !art.closest('.tf-faq-list')) return;
+    setFaqOpen(art, true);
+  }
+  openFaqFromHash();
+  window.addEventListener('hashchange', openFaqFromHash);
 
   /* -------------------------------------- Moha asset-audit detail panes */
   /* The reference page listed four asset events but only ever rendered one

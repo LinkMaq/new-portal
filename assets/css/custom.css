@@ -729,3 +729,17 @@ html:not(.js-ready) [style*="opacity: 0"] { opacity: 1 !important; transform: no
 }
 
 ::selection { background: rgba(125, 243, 240, .28); }
+
+/* 首页 FAQ：导语下的 /faq/ 入口，以及每条锚点避开 fixed 顶栏。 */
+.tf-faq-more {
+  display: inline-block;
+  margin-top: .9rem;
+  color: rgba(255, 255, 255, .62);
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  letter-spacing: .12em;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 255, 255, .28);
+}
+.tf-faq-more:hover { color: #fff; }
+.tf-faq-list article[id] { scroll-margin-top: 7.5rem; }

@@ -1,0 +1,68 @@
+/* /faq/ 的栏宽、居中和页首留白用全站 .tf-section / .tf-section-inner。
+   这里只补问答本身。不要再给列表写 width，再把 margin 归零：
+   那会得到一条 760px 的列表，贴在视口左侧，右侧整片空白。 */
+
+.tf-faqpage { color: #fff; }
+
+.tf-faqpage h1.tf-section-title { margin-bottom: 0; }
+
+.tf-faqpage-hero { margin-bottom: clamp(1.6rem, 3vw, 2.6rem); }
+
+.tf-faqpage-crumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .45rem;
+  align-items: center;
+  margin: 0 0 1.4rem;
+  color: rgba(255, 255, 255, .42);
+  font-family: var(--font-mono);
+  font-size: .68rem;
+  letter-spacing: .12em;
+}
+.tf-faqpage-crumb a { color: inherit; text-decoration: none; }
+.tf-faqpage-crumb a:hover { color: #fff; }
+
+.tf-faqpage-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tf-faqpage-item {
+  /* 132px 工具类清得过顶栏；这里再留一截，锚点进来时标题不被新闻条裁掉。 */
+  scroll-margin-top: 9rem;
+  padding: 1.35rem 0 1.45rem;
+  border-top: 1px solid rgba(255, 255, 255, .1);
+}
+.tf-faqpage-item:last-child { border-bottom: 1px solid rgba(255, 255, 255, .1); }
+
+.tf-faqpage-q {
+  margin: 0;
+  font-size: clamp(1.15rem, 2vw, 1.35rem);
+  font-weight: 600;
+  letter-spacing: -.015em;
+  line-height: 1.45;
+}
+
+.tf-faqpage-a {
+  margin: .75rem 0 0;
+  color: rgba(255, 255, 255, .72);
+  font-size: .95rem;
+  line-height: 1.75;
+}
+
+.tf-faqpage-more {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .55rem 1.1rem;
+  margin: .85rem 0 0;
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  letter-spacing: .06em;
+}
+.tf-faqpage-more a {
+  color: rgba(159, 233, 255, .92);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(159, 233, 255, .35);
+}
+.tf-faqpage-more a:hover { color: #fff; }
