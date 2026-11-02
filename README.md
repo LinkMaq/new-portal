@@ -2,7 +2,7 @@
 
 [www.poxiaoshi.cn](https://www.poxiaoshi.cn/) 的源码。
 
-静态站，没有前端框架、没有打包器、没有任何 npm 依赖：**16 个产物（13 个 `index.html`
+静态站，没有前端框架、没有打包器、没有任何 npm 依赖：**17 个产物（14 个 `index.html`
 + `404.html` + `robots.txt` + `sitemap.xml`）全部由 `tools/` 下的 Python 生成器派生，
 产物直接入库**，CI 每次 push 到 `main` 重跑一遍生成器再发布到 GitHub Pages。
 
@@ -13,7 +13,7 @@
 | `/` | 0 | `tools/reshape_home.py` | 首页：四大产品板块 + Rune Harness 云智算内核 |
 | `/about/` | 1 | `tools/build_about.py` | 公司简介 |
 | `/blog/` | 1 | `tools/build_blog.py` | 公司动态列表 |
-| `/blog/<slug>/` | 2 | 同上 | 5 篇文章详情 |
+| `/blog/<slug>/` | 2 | 同上 | 6 篇文章详情 |
 | `/contact/` | 1 | `tools/build_contact.py` | 联系我们（web3forms 表单 + 腾讯地图） |
 | `/products/{rune,moha,ai-router,boss}/` | 2 | `tools/build_products.py` | 四个产品子页 |
 | `/404.html` | 0 | `tools/build_404.py` | 兜底页 + 旧地址兼容层 |
@@ -25,7 +25,7 @@
 
 ```
 index.html            首页产物（由 tools/ref 的 pristine 快照 + reshape_home.py 派生）
-404.html about/ blog/ contact/ products/        其余 13 个产物
+404.html about/ blog/ contact/ products/        其余 14 个产物
 robots.txt sitemap.xml                          SEO 产物（tools/build_seo.py）
 assets/css/*.css      vendor.css（换牌时搬来的编译产物，含整套设计令牌与组件族）
                       custom.css 及各页样式表（自己写的部分）
@@ -119,7 +119,7 @@ node tools/qa/page.mjs    http://127.0.0.1:8899/index.html --shots tmp/shots
 
 ### 它不是「往快照里换文案」，是整条轨道重建
 
-公告条属于**站芯**：在首页产出，13 个内容页由 `portal_page.derive()` 整篇搬走。所以
+公告条属于**站芯**：在首页产出，14 个内容页由 `portal_page.derive()` 整篇搬走。所以
 它里面不能有任何逐页差异 —— 一旦有，`chrome_fingerprint()` 会报「站芯漂移」，而那个
 报错看起来像是 derive 的锅。
 
