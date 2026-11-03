@@ -98,12 +98,28 @@ def image_size(path):
 
 def expected_types(out_rel, posts):
     if out_rel == 'index.html':
-        return ['Organization', 'WebSite']
+        # FAQPage 由 reshape_home.stage_faq_schema() 追加，问答与可见 FAQ 同源。
+        return ['Organization', 'WebSite', 'FAQPage']
+    if out_rel == 'faq/index.html':
+        return ['WebPage', 'FAQPage', 'BreadcrumbList']
     if out_rel == 'blog/index.html':
         return ['Blog']
     if out_rel.startswith('blog/') and out_rel.endswith('/index.html'):
         return ['BlogPosting', 'BreadcrumbList']
+    if out_rel.startswith('solutions/') and out_rel.endswith('/index.html'):
+        return ['WebPage', 'BreadcrumbList']
     return ['WebPage']
+
+
+def visible_plain(html):
+    """去掉 SEO 块与脚本后的可见文本，标签剥掉但不要在标签边界插入空白。
+
+    FAQ 对账用：结构化数据里的句子必须能在可见正文里原样找到。把 SEO 块留着
+    会拿 JSON 自己证明自己。
+    """
+    html = seo.SEO_BLOCK_RE.sub('', html)
+    html = re.sub(r'<script\b[^>]*>.*?</script>', '', html, flags=re.S | re.I)
+    return re.sub(r'<[^>]+>', '', html)
 
 
 def check(quiet=False):
@@ -260,6 +276,31 @@ def check(quiet=False):
                         if want_date and not str(got_date).startswith(want_date):
                             problems.append('%s: datePublished=%r，内容源里是 %s'
                                             % (page, got_date, want_date))
+                    # FAQPage：可见文案是另一份渲染，不能用 JSON 自己证明自己。
+                    # 先剥掉 SEO 块再找句子。问或答只活在结构化数据里，这里会红。
+                    if 'FAQPage' in types:
+                        plain = visible_plain(html)
+                        for node in data['@graph']:
+                            if node.get('@type') != 'FAQPage':
+                                continue
+                            entities = node.get('mainEntity') or []
+                            if not entities:
+                                problems.append('%s: FAQPage 没有 mainEntity' % page)
+                            for q in entities:
+                                name = q.get('name') or ''
+                                answer = (q.get('acceptedAnswer') or {}).get('text') or ''
+                                if not name or name not in plain:
+                                    problems.append('%s: FAQ 问题不在可见正文里: %s'
+                                                    % (page, name[:40]))
+                                if not answer or answer not in plain:
+                                    problems.append('%s: FAQ 答案不在可见正文里: %s'
+                                                    % (page, name[:40]))
+                                anchor = q.get('@id') or ''
+                                if anchor and '#' in anchor:
+                                    frag = anchor.split('#', 1)[1]
+                                    if 'id="%s"' % frag not in html:
+                                        problems.append('%s: FAQ 锚点 #%s 在页面上不存在'
+                                                        % (page, frag))
 
         rows.append((page, seo.page_url(page) or '(noindex)', image or '-'))
 

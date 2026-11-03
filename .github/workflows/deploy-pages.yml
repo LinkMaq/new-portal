@@ -111,7 +111,7 @@ jobs:
           # robots.txt / sitemap.xml 是 2026-09-11 补 SEO 时新增的。它们的失败
           # 表现同样没有本地症状 —— 站点一切正常，只是搜索引擎抓不到 sitemap、
           # 看不到 robots 里的 sitemap 指针，收录退化成纯靠外链发现。
-          PUBLISH="index.html 404.html .nojekyll robots.txt sitemap.xml assets about blog contact products"
+          PUBLISH="index.html 404.html .nojekyll robots.txt sitemap.xml assets about blog contact products faq solutions"
           # 绝不上线的顶层目录：源码与工具。清单里出现它们就是错的 ——
           # 那等于把生成器、内容源与快照一起发给公网。
           DENY="tools content docs tmp outputs node_modules dist .git .github"

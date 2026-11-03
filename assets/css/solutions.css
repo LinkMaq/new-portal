@@ -1,0 +1,182 @@
+/* /solutions/ 与三张场景页。垂直间距写在这里，不依赖 vendor 里未必存在的 Tailwind 间距类。 */
+
+.tf-solutions-page { color: #fff; }
+
+.tf-sol-wrap {
+  width: min(920px, calc(100% - 3rem));
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.tf-sol-hero { padding-top: clamp(2.4rem, 4.6vw, 4rem); padding-bottom: 1.5rem; }
+.tf-sol-block { padding: 1.6rem 0 0.4rem; }
+.tf-sol-end { padding-bottom: clamp(3rem, 6vw, 5rem); }
+
+.tf-sol-crumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .45rem;
+  align-items: center;
+  margin: 0 0 1.3rem;
+  color: rgba(255, 255, 255, .42);
+  font-family: var(--font-mono);
+  font-size: .68rem;
+  letter-spacing: .12em;
+}
+.tf-sol-crumb a { color: inherit; text-decoration: none; }
+.tf-sol-crumb a:hover { color: #fff; }
+
+.tf-sol-title {
+  margin: .75rem 0 0;
+  font-size: clamp(2rem, 4.2vw, 3.15rem);
+  font-weight: 600;
+  letter-spacing: -.03em;
+  line-height: 1.12;
+}
+
+.tf-sol-lede {
+  margin: 1.1rem 0 0;
+  max-width: 42rem;
+  color: rgba(255, 255, 255, .7);
+  font-size: 1.02rem;
+  line-height: 1.75;
+}
+
+.tf-sol-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .75rem;
+  margin-top: 1.5rem;
+}
+
+.tf-sol-h2 {
+  margin: 0 0 .9rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -.02em;
+}
+
+.tf-sol-list { margin: 0; padding: 0; list-style: none; }
+.tf-sol-list li {
+  padding: .85rem 0;
+  border-top: 1px solid rgba(255, 255, 255, .1);
+  color: rgba(255, 255, 255, .74);
+  line-height: 1.7;
+}
+.tf-sol-list li:last-child { border-bottom: 1px solid rgba(255, 255, 255, .1); }
+.tf-sol-list strong { color: #fff; font-weight: 600; }
+
+.tf-sol-table-wrap { overflow-x: auto; }
+.tf-sol-table { width: 100%; border-collapse: collapse; }
+.tf-sol-table th,
+.tf-sol-table td {
+  text-align: left;
+  vertical-align: top;
+  padding: .85rem .7rem;
+  border-bottom: 1px solid rgba(255, 255, 255, .1);
+  color: rgba(255, 255, 255, .74);
+  font-size: .92rem;
+  line-height: 1.65;
+}
+.tf-sol-table th {
+  color: rgba(255, 255, 255, .42);
+  font-family: var(--font-mono);
+  font-size: .68rem;
+  font-weight: 500;
+  letter-spacing: .14em;
+}
+
+.tf-sol-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.tf-sol-steps li {
+  padding: 1rem 1rem .9rem;
+  border: 1px solid rgba(255, 255, 255, .1);
+  background: rgba(255, 255, 255, .03);
+}
+.tf-sol-steps b {
+  display: block;
+  margin-bottom: .35rem;
+  color: rgba(159, 233, 255, .9);
+  font-family: var(--font-mono);
+  font-size: .66rem;
+  font-weight: 500;
+  letter-spacing: .16em;
+}
+
+.tf-sol-note {
+  margin: 1rem 0 0;
+  color: rgba(255, 255, 255, .55);
+  font-size: .88rem;
+  line-height: 1.7;
+}
+
+.tf-sol-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .55rem 1.1rem;
+  margin: .4rem 0 0;
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  letter-spacing: .06em;
+}
+.tf-sol-links a {
+  color: rgba(159, 233, 255, .92);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(159, 233, 255, .35);
+}
+.tf-sol-links a:hover { color: #fff; }
+
+.tf-sol-cards {
+  display: grid;
+  gap: .9rem;
+  margin: 1.2rem 0 0;
+}
+.tf-sol-card {
+  display: block;
+  padding: 1.15rem 1.2rem 1.2rem;
+  border: 1px solid rgba(255, 255, 255, .1);
+  background: rgba(255, 255, 255, .03);
+  color: inherit;
+  text-decoration: none;
+}
+.tf-sol-card:hover { border-color: rgba(159, 233, 255, .45); }
+.tf-sol-card h2 {
+  margin: .35rem 0 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: -.02em;
+}
+.tf-sol-card p { margin: .55rem 0 0; color: rgba(255, 255, 255, .66); line-height: 1.65; }
+.tf-sol-card small {
+  color: rgba(255, 255, 255, .4);
+  font-family: var(--font-mono);
+  font-size: .66rem;
+  letter-spacing: .12em;
+}
+
+@media (max-width: 720px) {
+  .tf-sol-steps { grid-template-columns: minmax(0, 1fr); }
+  .tf-sol-table thead { display: none; }
+  .tf-sol-table,
+  .tf-sol-table tbody,
+  .tf-sol-table tr,
+  .tf-sol-table td { display: block; width: 100%; }
+  .tf-sol-table td { padding-top: .35rem; }
+  .tf-sol-table td:before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: .2rem;
+    color: rgba(255, 255, 255, .4);
+    font-family: var(--font-mono);
+    font-size: .66rem;
+    letter-spacing: .12em;
+  }
+  .tf-sol-table tr { border-bottom: 1px solid rgba(255, 255, 255, .1); padding: .4rem 0 .6rem; }
+  .tf-sol-table td { border-bottom: 0; }
+}

@@ -8,11 +8,11 @@
 import { readFileSync } from 'node:fs';
 import { session } from './cdp.mjs';
 
-const URL = process.argv[2] || 'http://127.0.0.1:8899/index.html';
+const pageUrl = process.argv[2] || 'http://127.0.0.1:8899/index.html';
 const W = Number(process.argv[3] || 1440);
 
 const page = await session({
-  port: 9346, width: W, profile: 'reshape', url: URL,
+  port: 9346, width: W, profile: 'reshape', url: pageUrl,
   // 等水合：reshape 的标记是页面最后构建出来的，冷 profile 上纯 sleep 会赛跑。
   // 这个选择器必须指向**始终存在**的板块 —— 它曾指向 #harness，板块删掉后
   // 不会报错，只是每次静默跑满 40 轮重试。
@@ -30,7 +30,7 @@ const probe = `(() => {
     heroSubtitle: one('#home h1 + p'),
     heroOverline: one('#home .tf-overline'),
     // the thinking orb is a chat-avatar-only mark now: the overline is a plain
-    // text pill, and exactly one `.tf-thinking` should exist on the page
+    // text pill, and exactly one \`.tf-thinking\` should exist on the page
     heroOrb: $$('#home .tf-overline-live .tf-thinking').length,
     heroOrbSpin: (() => {
       const e = document.querySelector('#home .tf-thinking-spin');
@@ -76,13 +76,14 @@ const probe = `(() => {
       const cs = getComputedStyle(e);
       return cs.animationName + '/' + cs.animationDuration;
     }),
-    navTitles: $$('.tf-nav-dropdown-item .tf-nav-dropdown-title').map((e) => clean(e.textContent)),
+    // 下拉标题同样套着乱码动效的三层副本，textContent 会把同一词读成三遍。
+    navTitles: $$('.tf-nav-dropdown-item .tf-nav-dropdown-title').map((e) => clean((e.querySelector('.tf-scramble-measure') || e).textContent)),
     // 「关于我们」下拉单列一份：2026-09-11 调整过（开源项目改指站外、加入我们移除），
     // 见 reshape_home.py 的 stage_nav_company。带上 target 是为了同时断「站外开新窗」
     companyNav: $$('.tf-nav-company-dropdown .tf-nav-dropdown-item').map((e) => {
       const t = e.querySelector('.tf-nav-dropdown-title');
       return {
-        title: t ? clean(t.textContent) : '',
+        title: t ? clean((t.querySelector('.tf-scramble-measure') || t).textContent) : '',
         href: e.getAttribute('href'),
         blank: e.getAttribute('target') === '_blank',
       };
@@ -157,8 +158,11 @@ const probe = `(() => {
       && !document.querySelector('.tf-advantage-card')
       && !document.querySelector('.tf-advantage-inner'),
     // textContent, not innerText: the runtime story sits in a tab lane and the
-    // hidden lanes are display:none, so innerText would miss them
-    xcmpSurvivors: ['向下由 XCMP 云管理能力提供多云资源底座',
+    // hidden lanes are display:none, so innerText would miss them.
+    // story 区那句「向下由 XCMP 云管理能力提供多云资源底座」写在 HTML 里，
+    // 但 main.js 的 renderControl(0) 水合时会换成当前板块的结果文案，
+    // 浏览器侧数不到它。这里只数水合之后仍在的五处。
+    xcmpSurvivors: [
       '通过 XCMP 统一纳管多地域资源',
       'XCMP 云管理能力为四大板块提供多云资源底座',
       'XCMP 可自动识别并接入 Kubernetes',
@@ -231,7 +235,8 @@ const probe = `(() => {
     pricingCopies: $$('.tf-home-pricing-item p').map((e) => clean(e.textContent)),
     pricingNote: one('.tf-home-pricing-note > span'),
     faqCount: $$('.tf-faq-list article').length,
-    footerProducts: $$('footer a').map((a) => clean(a.textContent))
+    faqAnchors: $$('.tf-faq-list article[id]').map((e) => e.id),
+    footerProducts: $$('footer a').map((a) => clean((a.querySelector('.tf-scramble-measure') || a).textContent))
       .filter((x) => /^(产品总览|Rune 智算|Moha 资产|AIRouter · AI聚合网关|BOSS 运营|XCMP 云管理|KubeGems)$/.test(x)),
     ids: $$('section[id]').map((e) => e.id),
     docW: document.documentElement.scrollWidth,
@@ -293,9 +298,9 @@ const results = [
   // 顶层菜单「解决方案」2026-09-11 改指演示站第一页（见 stage_nav_menu）。
   // 按 label 查找而不是按索引 —— 这个选择器还命中两个下拉 trigger（button，
   // 无 href）与「联系销售」，索引会随上游增删项漂移。
-  eq('the solutions menu entry points at the deck',
+  eq('the solutions menu entry points at /solutions/',
     (v.navMenu.find((e) => e.title === '解决方案') || {}).href,
-    'https://ppt.poxiaoshi.cn/#slide-1'),
+    '/solutions/'),
   // 商务出口统一收口 /contact（2026-09-11 晚（十三），见 reshape_home.py 的
   // stage_contact_retarget）。这里只核导航条右侧那条 CTA —— 它是四条里唯一能在
   // 现有采集字段（navMenu）里读到的；页脚两条与移动抽屉那条由 Python 守卫按
@@ -381,7 +386,7 @@ const results = [
   eq('harness band lists its four chips', v.harnessChips,
     ['Harness', 'Agents', 'Skills', 'Execute']),
   eq('the XCMP capability band is gone', v.xcmpBandGone, true),
-  eq('XCMP wording survives in the five other places', v.xcmpSurvivors, 6),
+  eq('XCMP wording survives in the five other places', v.xcmpSurvivors, 5),
   eq('footer wordmark carries the company name', v.footerWordmark, '破晓石科技'),
   eq('the all-systems-operational pill is gone', v.footerStatusGone, true),
   eq('copyright line keeps company and address only', v.footerQuote,
@@ -447,6 +452,9 @@ const results = [
   eq('pricing note explains module changes', v.pricingNote,
     '模块可按需增减，变更于下一订阅周期生效；交付与实施服务按项目范围单独报价。'),
   eq('FAQ carries nine entries', v.faqCount, 9),
+  eq('each FAQ entry has its own anchor', v.faqAnchors, [
+    'faq-matrix', 'faq-difference', 'faq-integration', 'faq-gpu', 'faq-private',
+    'faq-moha-records', 'faq-trial', 'faq-boss', 'faq-harness']),
   eq('footer product column is complete', v.footerProducts,
     ['产品总览', 'Rune 智算', 'Moha 资产', 'AIRouter · AI聚合网关', 'BOSS 运营', 'XCMP 云管理', 'KubeGems']),
   // the XCMP band was cut from the foot of the page, so the closing CTA is now
